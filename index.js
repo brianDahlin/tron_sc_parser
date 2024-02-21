@@ -37,20 +37,22 @@ async function checkBalanceUSDT() {
   for (let i = 0; i < addr.length; i++) {
     let j = await token.balanceOf(addr[i]).call();
     balance += j.toNumber();
-    console.log(
+    process.stdout.write(
       `Balance of pool with address ${addr[i]} is ${
         j.toNumber() / 1000000
-      } USDT`
+      } USDT\n`
     );
   }
 
   const border = Array(10).fill("*").join("");
-  console.log(`${border}`);
+  process.stdout.write(`\n${border}\n`);
 
-  console.log(`Total balance`);
-  console.log(`${balance / 1000000} USDT`);
+  process.stdout.write(`Total balance\n`);
+  process.stdout.write(`${balance / 1000000} USDT\n`);
 
-  return balance;
+  process.stdout.moveCursor(0, -(addr.length + 4));
+
+  setTimeout(checkBalanceUSDT, 10000);
 }
 
 checkBalanceUSDT();
