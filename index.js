@@ -39,7 +39,7 @@ async function checkBalanceUSDT() {
     balance += j.toNumber();
     process.stdout.write(
       `Balance of pool with address ${addr[i]} is ${
-        j.toNumber() / 1000000
+        (j.toNumber() / 1000000).toLocaleString()
       } USDT\n`
     );
   }
@@ -48,11 +48,11 @@ async function checkBalanceUSDT() {
   process.stdout.write(`\n${border}\n`);
 
   process.stdout.write(`Total balance\n`);
-  process.stdout.write(`${balance / 1000000} USDT\n`);
+  process.stdout.write(`${(balance / 1000000).toLocaleString()} USDT\n`);
 
   process.stdout.moveCursor(0, -(addr.length + 4));
 
-  setTimeout(checkBalanceUSDT, 10000);
+  setTimeout(checkBalanceUSDT, 1000);
 }
 
 checkBalanceUSDT();
