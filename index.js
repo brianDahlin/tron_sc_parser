@@ -26,6 +26,8 @@ const addr = [
   "TG3vYt7w9DWQhA1uSKFVvak3TVqoPabx4K",
 ];
 
+const balanceHistory = []; // Array to store balance history with timestamps
+
 async function checkBalanceUSDT() {
   //обращаемся к абишнику токену по которому нужно получить result
   const token = await tronWeb.contract(
@@ -44,15 +46,36 @@ async function checkBalanceUSDT() {
     );
   }
 
+  const timestamp = new Date().getTime(); // Get current timestamp
+  balanceHistory.push({ timestamp, balance }); // Store balance with timestamp
+
   const border = Array(10).fill("*").join("");
   process.stdout.write(`\n${border}\n`);
 
   process.stdout.write(`Total balance\n`);
   process.stdout.write(`${(balance / 1000000).toLocaleString()} USDT\n`);
 
-  process.stdout.moveCursor(0, -(addr.length + 4));
+  calculateAverageIncreaseRate(); // Calculate and display rolling one-hour window average increase rate
+
+  process.stdout.moveCursor(0, -(addr.length + 5));
 
   setTimeout(checkBalanceUSDT, 1000);
+}
+
+function calculateAverageIncreaseRate() {
+  const oneHourAgo = new Date().getTime() - 3600000; // Calculate timestamp of one hour ago
+  const relevantBalances = balanceHistory.filter(
+    (entry) => entry.timestamp >= oneHourAgo
+  ); // Filter balance history for entries within the one-hour window
+
+  if (relevantBalances.length > 1) {
+    const totalBalanceIncrease = relevantBalances[relevantBalances.length - 1].balance - relevantBalances[0].balance;
+    const timeDifference = relevantBalances[relevantBalances.length - 1].timestamp - relevantBalances[0].timestamp;
+    const averageIncreaseRate = totalBalanceIncrease / (timeDifference / 1000) * 3600; // Calculate average increase rate per hour
+
+    const formattedAverageIncreaseRate = (averageIncreaseRate >= 0 ? "+" : "") + (averageIncreaseRate / 1000000).toLocaleString();
+    process.stdout.write(`${formattedAverageIncreaseRate} USDT per hour on average\n`);
+  }
 }
 
 checkBalanceUSDT();
